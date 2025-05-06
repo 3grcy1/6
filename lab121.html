@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Solar System Simulation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #2b2b2b;
+      color: white;
+    }
+    canvas { display: block; margin: 20px auto; background: black; }
+    table { 
+      border-collapse: collapse; 
+      margin: 20px auto; 
+      width: 80%; 
+      background-color: #333; 
+      display: none; 
+    }
+    th, td { 
+      border: 1px solid #555; 
+      padding: 10px; 
+      text-align: center; 
+    }
+    th {
+      cursor: pointer; 
+      background-color: #444; 
+    }
+    th:hover { background-color: #666; }
+    td {
+      color: #bbb;
+    }
+    th i {
+      margin-left: 8px;
+      font-size: 14px;
+    }
+    tr:nth-child(even) { background-color: #444; }
+    tr:nth-child(odd) { background-color: #333; }
+    tr:hover { background-color: #555; }
+    .container {
+      text-align: center;
+    }
+    .btn-toggle {
+      margin: 20px;
+      padding: 10px 20px;
+      background-color: #ff9800;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .btn-toggle:hover {
+      background-color: #e68900;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <button class="btn-toggle" onclick="toggleTable()">Toggle Solar System Data</button>
+</div>
+
+<canvas id="solarCanvas" width="800" height="600"></canvas>
+
+<table id="infoTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">Object <i class="fa fa-sort"></i></th>
+      <th onclick="sortTable(1)">Mass (10²⁴ kg) <i class="fa fa-sort"></i></th>
+      <th onclick="sortTable(2)">Orbit Radius (10⁶ km) <i class="fa fa-sort"></i></th>
+      <th onclick="sortTable(3)">Color <i class="fa fa-sort"></i></th>
+      <th onclick="sortTable(4)">Diameter (km) <i class="fa fa-sort"></i></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Mercury</td><td>0.33</td><td>57.9</td><td>Gray</td><td>4879</td></tr>
+    <tr><td>Venus</td><td>4.87</td><td>108.2</td><td>Yellow</td><td>12104</td></tr>
+    <tr><td>Earth</td><td>5.97</td><td>149.6</td><td>Blue</td><td>12756</td></tr>
+    <tr><td>Mars</td><td>0.642</td><td>227.9</td><td>Red</td><td>6792</td></tr>
+    <tr><td>Jupiter</td><td>1898</td><td>778.5</td><td>Orange</td><td>142984</td></tr>
+    <tr><td>Saturn</td><td>568</td><td>1434</td><td>Gold</td><td>120536</td></tr>
+    <tr><td>Uranus</td><td>86.8</td><td>2871</td><td>Cyan</td><td>51118</td></tr>
+    <tr><td>Neptune</td><td>102</td><td>4495</td><td>Blue</td><td>49528</td></tr>
+    <tr><td>Pluto</td><td>0.0146</td><td>5906</td><td>Brown</td><td>2376</td></tr>
+    <tr><td>Sun</td><td>1989000</td><td>0</td><td>Yellow</td><td>1391000</td></tr>
+  </tbody>
+</table>
+
+<script>
+  const canvas = document.getElementById("solarCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "yellow";
+  ctx.beginPath();
+  ctx.arc(400, 300, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  function toggleTable() {
+    const table = document.getElementById("infoTable");
+    table.style.display = table.style.display === "table" ? "none" : "table";
+  }
+
+  function sortTable(n) {
+    const table = document.getElementById("infoTable");
+    let rows, switching, i, x, y, shouldSwitch, dir = "asc", switchcount = 0;
+    switching = true;
+
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+        let xVal = isNaN(parseFloat(x.innerHTML)) ? x.innerHTML.toLowerCase() : parseFloat(x.innerHTML);
+        let yVal = isNaN(parseFloat(y.innerHTML)) ? y.innerHTML.toLowerCase() : parseFloat(y.innerHTML);
+        if ((dir === "asc" && xVal > yVal) || (dir === "desc" && xVal < yVal)) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        switchcount++;
+      } else if (switchcount === 0 && dir === "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+    updateSortIcons(n, dir);
+  }
+
+  function updateSortIcons(colIndex, dir) {
+    const headers = document.querySelectorAll("th");
+    headers.forEach((header, index) => {
+      const icon = header.querySelector("i");
+      if (index === colIndex) {
+        icon.classList.remove("fa-sort", "fa-sort-asc", "fa-sort-desc");
+        icon.classList.add(dir === "asc" ? "fa-sort-asc" : "fa-sort-desc");
+      } else {
+        icon.classList.remove("fa-sort-asc", "fa-sort-desc");
+        icon.classList.add("fa-sort");
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
